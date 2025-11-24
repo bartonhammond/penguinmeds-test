@@ -1,0 +1,22 @@
+{
+  "name": "penguinmeds-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for Penguin Meds application",
+  "scripts": {
+    "test": "jest",
+    "test:headed": "HEADLESS=false jest",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "puppeteer",
+    "jest",
+    "e2e",
+    "testing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "puppeteer": "^21.6.1"
+  }
+}
