@@ -16,9 +16,16 @@ const NICOTINE_AMOUNTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 async function launchBrowser() {
   const headless = process.env.HEADLESS !== 'false';
   return await puppeteer.launch({
-    headless,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    slowMo: headless ? 0 : 50
+    headless: headless ? 'new' : false,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--disable-gpu'
+    ],
+    slowMo: headless ? 0 : 50,
+    timeout: 30000
   });
 }
 
@@ -29,7 +36,8 @@ async function clearStorage(page) {
   await page.evaluate(() => {
     localStorage.clear();
   });
-  await page.reload({ waitUntil: 'networkidle2' });
+  await page.reload({ waitUntil: 'networkidle0', timeout: 30000 });
+  await page.waitForTimeout(1000); // Additional wait for app initialization
 }
 
 /**

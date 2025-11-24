@@ -1,7 +1,7 @@
 # Penguin Meds Test Suite
 
 Automated end-to-end testing for the Penguin Meds application using Puppeteer and Jest.
-buddy 
+
 ## Installation
 
 ```bash
@@ -19,7 +19,43 @@ npm run test:headed
 
 # Run tests with coverage
 npm run test:coverage
+
+# Run debug test only
+npm run test:debug
+
+# Run debug test in headed mode
+npm run test:debug:headed
 ```
+
+## Troubleshooting
+
+### "Socket hang up" errors
+
+If you see socket hang up errors, try:
+
+1. **Run the debug test first:**
+   ```bash
+   npm run test:debug:headed
+   ```
+   This will help identify if it's a connection issue.
+
+2. **Check your internet connection** - The tests need to access the live website.
+
+3. **Try increasing timeouts** - Edit `jest.config.js` and increase `testTimeout` to 120000.
+
+4. **Run tests one at a time:**
+   ```bash
+   npm test -- tests/marijuana.test.js
+   npm test -- tests/nicotine.test.js
+   ```
+
+5. **Check if the website is accessible** - Open https://bartonhammond.github.io/penquinmeds/ in your browser.
+
+6. **Install/reinstall Puppeteer:**
+   ```bash
+   npm uninstall puppeteer
+   npm install puppeteer
+   ```
 
 ## Project Structure
 

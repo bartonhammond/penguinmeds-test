@@ -23,17 +23,32 @@ describe('Nicotine Form Tests', () => {
   });
 
   afterAll(async () => {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
   });
 
   beforeEach(async () => {
     page = await browser.newPage();
-    await page.goto(BASE_URL, { waitUntil: 'networkidle2' });
-    await clearStorage(page);
+    await page.setDefaultNavigationTimeout(30000);
+    await page.setDefaultTimeout(30000);
+    
+    try {
+      await page.goto(BASE_URL, { 
+        waitUntil: 'networkidle0',
+        timeout: 30000
+      });
+      await clearStorage(page);
+    } catch (error) {
+      console.error('Error loading page:', error.message);
+      throw error;
+    }
   });
 
   afterEach(async () => {
-    await page.close();
+    if (page) {
+      await page.close();
+    }
   });
 
   describe('Add Nicotine Entries', () => {
