@@ -3,12 +3,14 @@ const puppeteer = require('puppeteer');
 const BASE_URL = 'http://localhost:8000/'
 
 // Marijuana types and amounts
-const MARIJUANA_TYPES = ['Flower', 'Tincture', 'Day Gummy', 'Night Gummy', 'Oil'];
+const MARIJUANA_TYPES = ['flower', 'tincture', 'day gummy', 'night gummy', 'oil'];
 const MARIJUANA_AMOUNTS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 
 // Nicotine types and amounts
-const NICOTINE_TYPES = ['Gum', 'Lozenge', 'Pouch'];
+const NICOTINE_TYPES = ['gum', 'lozenge', 'pouch'];
 const NICOTINE_AMOUNTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// Local storage key name
 
 /**
  * Launch browser instance
@@ -26,11 +28,7 @@ async function launchBrowser() {
  * Clear all local storage data
  */
 async function clearStorage(page) {
-    await page.evaluate(() => {
-	localStorage.clear();
-    });
-    await page.reload({ waitUntil: 'networkidle0', timeout: 30000 });
-    await page.waitForTimeout(1000); // Additional wait for app initialization
+    await page.evaluate(() => localStorage.clear())
 }
 
 /**
@@ -46,12 +44,10 @@ function getRandomDateInLastWeek(daysAgo) {
  * Format date for input field (YYYY-MM-DDTHH:mm)
  */
 function formatDateTimeLocal(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return date.toLocaleString('en-US', {
+	hour: '2-digit',
+	minute: '2-digit'
+    })
 }
 
 /**
@@ -119,20 +115,17 @@ function generateNicotineMockData() {
  */
 async function addMarijuanaEntry(page, type, amount, datetime) {
     // Select marijuana type
-    await page.select('#marijuana-type', type);
+    await page.select('#mj-type', type);
     
     // Select marijuana amount
-    await page.select('#marijuana-amount', amount.toString());
+    await page.select('#mj-amount', amount.toString());
     
     // Set datetime
     const datetimeStr = formatDateTimeLocal(datetime);
-    await page.evaluate((dt) => {
-	document.querySelector('#marijuana-datetime').value = dt;
-    }, datetimeStr);
+    await page.type('#mj-time', datetimeStr); 
     
     // Submit form
-    await page.click('#add-marijuana');
-    await page.waitForTimeout(500); // Wait for entry to be added
+    await page.click('#mj-submit-btn');
 }
 
 /**
@@ -153,34 +146,29 @@ async function addNicotineEntry(page, type, amount, datetime) {
     
     // Submit form
     await page.click('#add-nicotine');
-    await page.waitForTimeout(500); // Wait for entry to be added
 }
 
 /**
- * Get total entries count
+ * Get total entries count - these entries contain a element with a description which is then ignored
  */
 async function getEntryCount(page, selector) {
     return await page.evaluate((sel) => {
 	const list = document.querySelector(sel);
-	return list ? list.children.length : 0;
+	return list ? list.children.length -1 : 0;
     }, selector);
 }
 
 /**
  * Calculate expected daily totals from entries
  */
-function calculateDailyTotals(entries) {
-    const totals = {};
+function calculateTotal(entries) {
+    let total = 0
     
     entries.forEach(entry => {
-	const dateKey = getDateKey(entry.datetime);
-	if (!totals[dateKey]) {
-	    totals[dateKey] = 0;
-	}
-	totals[dateKey] += entry.amount;
+	total += entry.amount;
     });
     
-    return totals;
+    return total
 }
 
 /**
@@ -188,7 +176,6 @@ function calculateDailyTotals(entries) {
  */
 async function waitForChart(page, chartSelector) {
     await page.waitForSelector(chartSelector, { timeout: 5000 });
-    await page.waitForTimeout(1000); // Additional wait for chart animation
 }
 
 /**
@@ -209,6 +196,12 @@ async function getChartData(page, canvasSelector) {
 	return { data, labels };
     }, canvasSelector);
 }
+/**
+   Return slice of array
+**/
+function sliceMockData(mock, start, end) {
+    return mock.slice(start,end)
+}
 
 module.exports = {
     BASE_URL,
@@ -226,7 +219,8 @@ module.exports = {
     addMarijuanaEntry,
     addNicotineEntry,
     getEntryCount,
-    calculateDailyTotals,
+    calculateTotal,
     waitForChart,
-    getChartData
+    getChartData,
+    sliceMockData 
 };

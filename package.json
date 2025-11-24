@@ -7,7 +7,8 @@
 	"test:headed": "HEADLESS=false jest",
 	"test:coverage": "jest --coverage",
 	"test:debug": "jest --runInBand tests/debug.test.js",
-	"test:debug:headed": "HEADLESS=false jest  --runInBand tests/debug.test.js"
+	"test:debug:headed": "HEADLESS=false jest  --runInBand tests/debug.test.js",
+	"debug": "node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand"
     },
     "keywords": [
 	"puppeteer",

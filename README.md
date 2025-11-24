@@ -89,3 +89,9 @@ penguinmeds-tests/
 - Validates chart data reflects correct totals
 - Cleans up test data after each run
 - Headless and headed modes available
+
+## Notes
+### To debug the test script,
+*  put `debugger` somewhere
+*  run `$ npm run debug -- tests/marijuana.test.js`
+*  in browser `chrome://inspect/#devices`

@@ -3,7 +3,7 @@ module.exports = {
   launch: {
     headless: false, // Run in headless mode (default: true)
     devtools: true, // Open DevTools (useful for debugging, default: false)
-    slowMo: 50, // Slows down Puppeteer operations by the specified amount of milliseconds (useful for debugging)
+    slowMo: 10, // Slows down Puppeteer operations by the specified amount of milliseconds (useful for debugging)
 //    args: ['--no-sandbox', '--disable-setuid-sandbox'], // Additional arguments to pass to the browser instance
 //    executablePath: '/path/to/chrome', // Specify a custom path to the Chrome/Chromium executable
     timeout: 30000, // Maximum time in milliseconds to wait for the browser to start
