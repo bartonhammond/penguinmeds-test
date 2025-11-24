@@ -1,24 +1,26 @@
 {
-  "name": "penguinmeds-tests",
-  "version": "1.0.0",
-  "description": "E2E tests for Penguin Meds application",
-  "scripts": {
-    "test": "jest",
-    "test:headed": "HEADLESS=false jest",
-    "test:coverage": "jest --coverage",
-    "test:debug": "jest tests/debug.test.js",
-    "test:debug:headed": "HEADLESS=false jest tests/debug.test.js"
-  },
-  "keywords": [
-    "puppeteer",
-    "jest",
-    "e2e",
-    "testing"
-  ],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "puppeteer": "^21.6.1"
-  }
- }
+    "name": "penguinmeds-tests",
+    "version": "1.0.0",
+    "description": "E2E tests for Penguin Meds application",
+    "scripts": {
+	"test": "jest",
+	"test:headed": "HEADLESS=false jest",
+	"test:coverage": "jest --coverage",
+	"test:debug": "jest --runInBand tests/debug.test.js",
+	"test:debug:headed": "HEADLESS=false jest  --runInBand tests/debug.test.js"
+    },
+    "keywords": [
+	"puppeteer",
+	"jest",
+	"e2e",
+	"testing"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+	"jest": "^30.2.0",
+	"jest-puppeteer": "^11.0.0",
+	"puppeteer": "^24.31.0"
+
+    }
+}
