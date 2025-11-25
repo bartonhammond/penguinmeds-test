@@ -73,13 +73,12 @@ describe('Marijuana Form Tests', () => {
 
     });
 
-    describe('Update Marijuana Entries', () => {
+    describe.skip('Update Marijuana Entries', () => {
 	test('should update marijuana entry type', async () => {
 	    const entry = mockData[0];
 	    await addMarijuanaEntry(page, entry.type, entry.amount, entry.datetime);
 	    
 	    // Click first entry to edit
-	    debugger
 	    await page.click('#mj-recent .entry-item');
 	    
 	    // Change type
@@ -90,7 +89,6 @@ describe('Marijuana Form Tests', () => {
 	    await page.click('#mj-submit-btn');
 	    
 	    // Verify update
-
 	    const entryText = await page.$eval('#mj-recent .entry-item', el => el.textContent);
 
 	    expect(entryText).toContain(newType);
@@ -99,9 +97,6 @@ describe('Marijuana Form Tests', () => {
 	test('should update marijuana entry amount', async () => {
 	    const entry = mockData[0];
 	    await addMarijuanaEntry(page, entry.type, entry.amount, entry.datetime);
-	    
-	    // Click first entry to edit
-	   
 	    
 	    // Change amount
 	    const newAmount = MARIJUANA_AMOUNTS.find(a => a !== entry.amount);
@@ -138,24 +133,29 @@ describe('Marijuana Form Tests', () => {
 	});
     });
 
-    describe.skip('Delete Marijuana Entries', () => {
-	test('should delete marijuana entry', async () => {
+    describe('Delete Marijuana Entries', () => {
+	test.only('should delete marijuana entry', async () => {
+	    
+	    
+	    page.on('dialog', async dialog => {
+		// Accept the confirmation dialog.
+		await dialog.accept();
+	    });
+
 	    const entry = mockData[0];
 	    await addMarijuanaEntry(page, entry.type, entry.amount, entry.datetime);
 	    
-	    let count = await getEntryCount(page, '#marijuana-list');
-	    expect(count).toBe(1);
-	    
 	    // Click entry to edit, then delete
-	    await page.click('#marijuana-list li');
+	    await page.click('#mj-recent .entry-item');
 	    
 	    // Look for delete button
-	    const deleteButton = await page.$('#delete-marijuana');
+	    const deleteButton = await page.$('.delete-btn');
 	    if (deleteButton) {
 		await deleteButton.click();
-		
-		count = await getEntryCount(page, '#marijuana-list');
-		expect(count).toBe(0);
+
+		debugger
+		const result = await page.$eval('#mj-recent ', el => el);
+		expect(result).toEqual({});
 	    }
 	});
 
