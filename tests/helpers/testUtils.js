@@ -49,6 +49,10 @@ function formatDateTimeLocal(date) {
 	minute: '2-digit'
     })
 }
+// Get date string
+function getDateStr(date = new Date()) {
+    return date.toISOString().split('T')[0];
+}
 
 /**
  * Get date key for grouping (YYYY-MM-DD)
@@ -109,11 +113,16 @@ function generateNicotineMockData() {
     
     return entries.sort((a, b) => b.datetime - a.datetime);
 }
-
+async function inputDate(page, datetime) {
+    await page.locator('#mj-date').fill('')
+    await page.locator('#mj-date').fill(getMMDDYYYY(datetime))
+}
 /**
  * Add marijuana entry via form
  */
 async function addMarijuanaEntry(page, type, amount, datetime) {
+    await inputDate(page, datetime)
+    
     // Select marijuana type
     await page.select('#mj-type', type);
     
@@ -154,11 +163,37 @@ async function addNicotineEntry(page, type, amount, datetime) {
 async function getEntryCount(page, selector) {
     return await page.evaluate((sel) => {
 	const list = document.querySelector(sel);
-	return list ? list.children.length -1 : 0;
+	const count = list ? list.children.length -1 : 0;
+	return count
     }, selector);
 }
-
 /**
+   calculate daily
+*/
+function calculateDailyTotals(entries) {
+    let totals = {}
+    
+    entries.forEach(entry => {
+	let dt = new Date(entry.datetime)
+	if (totals.hasOwnProperty(dt.getDate())) {
+	    totals[dt.getDate()] += entry.amount
+	} else {
+	    totals[dt.getDate()] = entry.amount
+	}
+    });
+    return totals
+		    
+}
+function calculateDailyTotalsFromLocalStorage() {
+    const keys = Object.keys(localStorage).filter(key => key.startsWith('entries:'));
+    let totals = {}
+    keys.forEach(key => {
+
+        const date = key.replace('entries:', '');
+    });    
+}
+/**
+
  * Calculate expected daily totals from entries
  */
 function calculateTotal(entries) {
@@ -203,6 +238,42 @@ function sliceMockData(mock, start, end) {
     return mock.slice(start,end)
 }
 
+/**
+ * Get date for html input
+ */
+function getMMDDYYYY(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+/**
+   get the unique dates
+**/
+
+function getUniqueDates(dataArray, dateKey) {
+    const uniqueDates = new Set();
+
+  dataArray.forEach(item => {
+      const date = new Date(item[dateKey])
+      uniqueDates.add(getMMDDYYYY(date))
+  });
+  return Array.from(uniqueDates); // Convert the Set back to an array
+}
+/**
+   The results should decrease
+**/
+async function waitForListToDecrease(count, callback) {
+    debugger
+    const interval = setInterval(async () => {
+	const result = await page.$eval('#mj-recent ', el => el);
+	debugger
+	clearInterval(interval);
+	callback();
+    }, 100)
+}
+
 module.exports = {
     BASE_URL,
     MARIJUANA_TYPES,
@@ -219,8 +290,15 @@ module.exports = {
     addMarijuanaEntry,
     addNicotineEntry,
     getEntryCount,
+    calculateDailyTotals,
+    calculateDailyTotalsFromLocalStorage,
     calculateTotal,
     waitForChart,
     getChartData,
-    sliceMockData 
+    sliceMockData,
+    getDateStr,
+    getUniqueDates,
+    getMMDDYYYY,
+    inputDate,
+    waitForListToDecrease
 };
