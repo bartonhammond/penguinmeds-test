@@ -92,6 +92,7 @@ function generateMarijuanaMockData() {
 /**
  * Generate mock nicotine entries for a full week
  */
+         
 function generateNicotineMockData() {
     const entries = [];
     
@@ -113,54 +114,35 @@ function generateNicotineMockData() {
     
     return entries.sort((a, b) => b.datetime - a.datetime);
 }
-async function inputDate(page, datetime) {
-    await page.locator('#mj-date').fill('')
-    await page.locator('#mj-date').fill(getMMDDYYYY(datetime))
+async function inputDate(prefix, page, datetime) {
+    await page.locator(`#${prefix}-date`).fill('')
+    await page.locator(`#${prefix}-date`).fill(getMMDDYYYY(datetime))
 }
 /**
- * Add marijuana entry via form
- */
-async function addMarijuanaEntry(page, type, amount, datetime) {
-    await inputDate(page, datetime)
+   Call appropriate add depending on prefix
+**/
+async function addEntry(prefix, page, type, amount, datetime) {
+    await inputDate(prefix, page, datetime)
     
     // Select marijuana type
-    await page.select('#mj-type', type);
+    await page.select(`#${prefix}-type`, type);
     
     // Select marijuana amount
-    await page.select('#mj-amount', amount.toString());
+    await page.select(`#${prefix}-amount`, amount.toString());
     
     // Set datetime
     const datetimeStr = formatDateTimeLocal(datetime);
-    await page.type('#mj-time', datetimeStr); 
+    await page.type(`#${prefix}-time`, datetimeStr); 
     
     // Submit form
-    await page.click('#mj-submit-btn');
-}
-
-/**
- * Add nicotine entry via form
- */
-async function addNicotineEntry(page, type, amount, datetime) {
-    // Select nicotine type
-    await page.select('#nicotine-type', type);
-    
-    // Select nicotine amount
-    await page.select('#nicotine-amount', amount.toString());
-    
-    // Set datetime
-    const datetimeStr = formatDateTimeLocal(datetime);
-    await page.evaluate((dt) => {
-	document.querySelector('#nicotine-datetime').value = dt;
-    }, datetimeStr);
-    
-    // Submit form
-    await page.click('#add-nicotine');
+    await page.click(`#${prefix}-submit-btn`);
 }
 
 /**
  * Get total entries count - these entries contain a element with a description which is then ignored
  */
-async function getEntryCount(page, selector) {
+async function getEntryCount(prefix, page, selector) {
+    await waitForListToDecrease(prefix, page)
     return await page.evaluate((sel) => {
 	const list = document.querySelector(sel);
 	const count = list ? list.children.length -1 : 0;
@@ -262,16 +244,10 @@ function getUniqueDates(dataArray, dateKey) {
   return Array.from(uniqueDates); // Convert the Set back to an array
 }
 /**
-   The results should decrease
+   Wait for items to be re-rendered
 **/
-async function waitForListToDecrease(count, callback) {
-    debugger
-    const interval = setInterval(async () => {
-	const result = await page.$eval('#mj-recent ', el => el);
-	debugger
-	clearInterval(interval);
-	callback();
-    }, 100)
+async function waitForListToDecrease(prefix, page) {
+    await page.waitForSelector(`#${prefix}-recent `, { timeout: 5000 });
 }
 
 module.exports = {
@@ -287,8 +263,7 @@ module.exports = {
     getDateKey,
     generateMarijuanaMockData,
     generateNicotineMockData,
-    addMarijuanaEntry,
-    addNicotineEntry,
+    addEntry,
     getEntryCount,
     calculateDailyTotals,
     calculateDailyTotalsFromLocalStorage,

@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "description": "E2E tests for Penguin Meds application",
     "scripts": {
-	"test": "jest",
+	"test:orig": "jest",
+	"test": "node  ./node_modules/jest/bin/jest.js --runInBand",
 	"test:headed": "HEADLESS=false jest",
 	"test:coverage": "jest --coverage",
 	"test:debug": "jest --runInBand tests/debug.test.js",
